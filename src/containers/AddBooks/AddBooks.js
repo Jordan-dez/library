@@ -1,8 +1,9 @@
 import React, { useState } from 'react'
 import { connect } from 'react-redux';
-import { addBook } from '../../redux/actions/actionAddBooks';
+import { addBook,deleteBook,deleteAllBooks } from '../../redux/actions/actionAddBooks';
+import FlipMove from 'react-flip-move';
 
-const AddBooks = ({libraryData,addBook}) => {
+const AddBooks = ({ libraryData, addBook,deleteBook,deleteAll}) => {
     console.log(libraryData);
     const initialState = {
         title: '',
@@ -15,6 +16,23 @@ const AddBooks = ({libraryData,addBook}) => {
         addBook(newData)
         setNewData(initialState)
     }
+
+    const displaydata = libraryData.length > 0 ?
+        <FlipMove>
+            {
+                libraryData.map((data) => {
+                    return (
+                        <li className="list-group-item list-group-item-light d-flex justify-content-between" key={data.id}>
+                            <span><strong>Titre :</strong> {data.title} </span>
+                            <span><strong>Auteur :</strong> {data.author} </span>
+                            <span className="btn btn-danger" onClick={()=>deleteBook(data.id)}>X</span>
+                        </li>
+                    )
+                })
+            }
+        </FlipMove>
+        :
+        <p className="text-center">aucun livre à afficher</p>
 
     return (
         <main role="main">
@@ -30,7 +48,7 @@ const AddBooks = ({libraryData,addBook}) => {
                                 placeholder='titre du livre'
                                 className="form-control mr-3"
                                 required
-                                onChange={(e)=>setNewData({...newData,title:e.target.value}) }
+                                onChange={(e) => setNewData({ ...newData, title: e.target.value })}
                             />
                         </div>
                         <div className="form-group ">
@@ -40,7 +58,7 @@ const AddBooks = ({libraryData,addBook}) => {
                                 className="form-control ml-3"
                                 value={newData.author}
                                 required
-                                onChange={(e)=>setNewData({...newData,author:e.target.value}) }
+                                onChange={(e) => setNewData({ ...newData, author: e.target.value })}
                             />
                         </div>
                         <div className="form-group">
@@ -53,13 +71,13 @@ const AddBooks = ({libraryData,addBook}) => {
                 <div className="row">
                     <div className="col-md-12">
                         <ul className="list-group">
-                            <li className="list-group-item list-group-item-light d-flex justify-content-between">
-                                livre enregisté ici
-                            </li>
+                            {displaydata}
                         </ul>
-                        <div className="d-flex justify-content-center">
-                            <button className="btn-danger mt-4 mb-5">Effacer tous les livres</button>
-                        </div>
+                        {libraryData.length > 0 &&
+                            <div className="d-flex justify-content-center">
+                                <button className="btn-danger mt-4 mb-5" onClick={deleteAll}>Effacer tous les livres</button>
+                            </div>
+                        }
                     </div>
                 </div>
             </div>
@@ -67,15 +85,17 @@ const AddBooks = ({libraryData,addBook}) => {
     )
 }
 
-const addStateToProps=state=>{
-return {
-    libraryData: state.library
+const addStateToProps = state => {
+    return {
+        libraryData: state.library
+    }
 }
-}
-const mapDispatchToProps =(dispatch)=>{
- return{
-    addBook:(param)=> dispatch(addBook(param))
- }
+const mapDispatchToProps = (dispatch) => {
+    return {
+        addBook: (param) => dispatch(addBook(param)),
+        deleteBook: (id) => dispatch(deleteBook(id)),
+        deleteAll:()=>dispatch(deleteAllBooks())
+    }
 }
 
-export default connect(addStateToProps,mapDispatchToProps)(AddBooks)
+export default connect(addStateToProps, mapDispatchToProps)(AddBooks)
